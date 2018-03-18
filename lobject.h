@@ -737,6 +737,22 @@ LUAI_FUNC const char *luaO_pushvfstring (lua_State *L, const char *fmt,
 LUAI_FUNC const char *luaO_pushfstring (lua_State *L, const char *fmt, ...);
 LUAI_FUNC void luaO_chunkid (char *out, const char *source, size_t len);
 
+/*
+** {==================================================================
+** Arrays
+** ===================================================================
+*/
+
+#define ttisarray(o)    checktag((o), ctb(LUA_TARRAY))
+
+typedef struct Array {
+  CommonHeader;
+  unsigned int sizearray;  /* size of 'array' array */
+  TValue *array;  /* array part */
+  GCObject *gclist;
+} Array;
+
+/* }================================================================== */
 
 #endif
 
