@@ -412,6 +412,14 @@ static int newarray (lua_State *L) {
   return 1;  /* return table */
 }
 
+static int reserve (lua_State *L) {
+  /* reserve capacity of the array part -- useful when filling large tables/arrays */ 
+  luaL_checktype(L, 1, LUA_TTABLE);
+  int size = luaL_checkinteger(L, 2);
+  lua_reserve(L, 1, size);
+  return 0;
+}
+
 /* }====================================================== */
 
 
@@ -424,6 +432,7 @@ static const luaL_Reg tab_funcs[] = {
   {"move", tmove},
   {"sort", sort},
   {"newarray", newarray},
+  {"reserve", reserve},
   {NULL, NULL}
 };
 

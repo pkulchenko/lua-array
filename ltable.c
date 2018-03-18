@@ -565,11 +565,10 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
   else if (t->truearray) {
     /* set new value to true array */
     if(!ttisinteger(key))
-      luaG_runerror(L, "non-integer array index");
+      luaG_runerror(L, "invalid array index");
     int idx = ivalue(key);   /* TODO: does not handle numbers larger than fits into a 32-bit signed integer! */
     if(idx < 1)
       luaG_runerror(L, "invalid array index");
-    printf("set new value to true array, index = %d\n", idx);
     luaH_resize(L, t, idx + 1, 0);
     /* TODO: is this safe? this skips rest of the function... */
     return &t->array[idx - 1];

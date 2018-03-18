@@ -752,6 +752,16 @@ LUA_API void lua_createarray (lua_State *L, int narray) {
   lua_unlock(L);
 }
 
+LUA_API void lua_reserve (lua_State *L, int idx, int size) {
+  TValue *o;
+  Table *t;
+  lua_lock(L);
+  o = index2value(L, idx);
+  api_check(L, ttistable(o), "table expected");
+  t = hvalue(o);
+  luaH_resize (L, t, (size > t->sizearray ? size : t->sizearray), t->lsizenode);
+  lua_unlock(L);
+}
 
 LUA_API int lua_getmetatable (lua_State *L, int objindex) {
   const TValue *obj;
