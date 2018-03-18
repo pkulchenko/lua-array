@@ -402,6 +402,16 @@ static int sort (lua_State *L) {
   return 0;
 }
 
+static int newarray (lua_State *L) {
+  int i;
+  int n = lua_gettop(L);  /* number of elements */
+  lua_createarray(L, n);  /* create result table */
+  lua_insert(L, 1);  /* put it at index 1 */
+  for (i = n; i >= 1; i--)  /* assign elements */
+    lua_seti(L, 1, i);
+  return 1;  /* return table */
+}
+
 /* }====================================================== */
 
 
@@ -413,6 +423,7 @@ static const luaL_Reg tab_funcs[] = {
   {"remove", tremove},
   {"move", tmove},
   {"sort", sort},
+  {"newarray", newarray},
   {NULL, NULL}
 };
 

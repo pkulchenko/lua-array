@@ -739,6 +739,20 @@ LUA_API void lua_createtable (lua_State *L, int narray, int nrec) {
 }
 
 
+LUA_API void lua_createarray (lua_State *L, int narray) {
+  Table *t;
+  lua_lock(L);
+  t = luaH_new(L);
+  t->truearray = 1;
+  sethvalue2s(L, L->top, t);
+  api_incr_top(L);
+  if (narray > 0)
+    luaH_resize(L, t, narray, 0);
+  luaC_checkGC(L);
+  lua_unlock(L);
+}
+
+
 LUA_API int lua_getmetatable (lua_State *L, int objindex) {
   const TValue *obj;
   Table *mt;

@@ -523,6 +523,7 @@ Table *luaH_new (lua_State *L) {
   Table *t = gco2t(o);
   t->metatable = NULL;
   t->flags = cast_byte(~0);
+  t->truearray = 0;
   t->array = NULL;
   t->sizearray = 0;
   setnodevector(L, t, 0);
