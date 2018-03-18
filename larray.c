@@ -114,7 +114,7 @@ void luaA_setint (lua_State *L, Array *a, lua_Integer key, TValue *value) {
     checkliveness(L,val);
   } else {
     /* TODO: this error message could be improved! */    
-    luaG_runerror(L, "index out of bounds");
+    luaG_runerror(L, "array index out of bounds");
   }
 }
 

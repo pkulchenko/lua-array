@@ -27,6 +27,7 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
+#include "larray.h"
 #include "ltm.h"
 #include "lvm.h"
 
@@ -587,6 +588,11 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
       setivalue(s2v(ra), luaH_getn(h));  /* else primitive len */
       return;
     }
+    case LUA_TARRAY: {
+      Array *a = avalue(rb);
+      setivalue(s2v(ra), a->sizearray);
+      return;
+    }
     case LUA_TSHRSTR: {
       setivalue(s2v(ra), tsvalue(rb)->shrlen);
       return;
@@ -986,7 +992,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         TValue *rb = vRB(i);
         int c = GETARG_C(i);
-        if (luaV_fastgeti(L, rb, c, slot)) {
+        if(ttisarray(rb)) {
+          setobj2s(L, ra, luaA_getint(avalue(rb), c));
+        }
+        else if (luaV_fastgeti(L, rb, c, slot)) {
           setobj2s(L, ra, slot);
         }
         else {
@@ -1039,7 +1048,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         int c = GETARG_B(i);
         TValue *rc = RKC(i);
-        if (luaV_fastgeti(L, vra, c, slot)) {
+        if(ttisarray(vra)) {
+          luaA_setint(L, avalue(vra), c, rc);
+        }
+        else if (luaV_fastgeti(L, vra, c, slot)) {
           luaV_finishfastset(L, vra, slot, rc);
         }
         else {
