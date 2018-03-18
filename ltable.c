@@ -466,7 +466,7 @@ void luaH_resize (lua_State *L, Table *t, unsigned int newasize,
     exchangehashpart(t, &newt);  /* and hash (in case of errors) */
   }
   /* allocate new array */
-  newarray = luaM_reallocvector(L, t->array, oldasize, newasize, TValue);
+  newarray = luaM_reallocvector(L, t->array, (t->truearray ? t->capacity : oldasize), newasize, TValue);
   if (newarray == NULL && newasize > 0) {  /* allocation failed? */
     freehash(L, &newt);  /* release new hash part */
     luaM_error(L);  /* raise error (with array unchanged) */
@@ -526,6 +526,7 @@ Table *luaH_new (lua_State *L) {
   t->truearray = 0;
   t->array = NULL;
   t->sizearray = 0;
+  t->capacity = 0;
   setnodevector(L, t, 0);
   return t;
 }
@@ -533,7 +534,7 @@ Table *luaH_new (lua_State *L) {
 
 void luaH_free (lua_State *L, Table *t) {
   freehash(L, t);
-  luaM_freearray(L, t->array, t->sizearray);
+  luaM_freearray(L, t->array, t->truearray ? t->capacity : t->sizearray);
   luaM_free(L, t);
 }
 
@@ -564,14 +565,25 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
   if (ttisnil(key)) luaG_runerror(L, "table index is nil");
   else if (t->truearray) {
     /* set new value to true array */
+    unsigned int capacity;
     if(!ttisinteger(key))
       luaG_runerror(L, "invalid array index");
     int idx = ivalue(key);   /* TODO: does not handle numbers larger than fits into a 32-bit signed integer! */
     if(idx < 1)
       luaG_runerror(L, "invalid array index");
-    luaH_resize(L, t, idx + 1, 0);
-    /* TODO: is this safe? this skips rest of the function... */
+    /* enlarge capacity */
+    if(t->capacity < idx) {
+      capacity = (t->capacity * 3 / 2 + 3) & ~3;
+      if(capacity < idx)
+       capacity = idx;
+      //printf("enlarge capacity %d -> %d\n", t->capacity, capacity);
+      luaH_resizearray(L, t, capacity);
+      t->capacity = t->sizearray;
+    }
+    t->sizearray = idx;
+    /* luaC_barrierback(L, obj2gco(t), key); is it necessary to call this here? */
     return &t->array[idx - 1];
+    /* TODO: is it safe to skip the rest of the function? especially call to luaC_barrierback() at the very end of the function? */
   } else if (ttisfloat(key)) {
     lua_Number f = fltvalue(key);
     lua_Integer k;
