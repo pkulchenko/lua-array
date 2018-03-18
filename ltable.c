@@ -562,7 +562,18 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
   Node *mp;
   TValue aux;
   if (ttisnil(key)) luaG_runerror(L, "table index is nil");
-  else if (ttisfloat(key)) {
+  else if (t->truearray) {
+    /* set new value to true array */
+    if(!ttisinteger(key))
+      luaG_runerror(L, "non-integer array index");
+    int idx = ivalue(key);   /* TODO: does not handle numbers larger than fits into a 32-bit signed integer! */
+    if(idx < 1)
+      luaG_runerror(L, "invalid array index");
+    printf("set new value to true array, index = %d\n", idx);
+    luaH_resize(L, t, idx + 1, 0);
+    /* TODO: is this safe? this skips rest of the function... */
+    return &t->array[idx - 1];
+  } else if (ttisfloat(key)) {
     lua_Number f = fltvalue(key);
     lua_Integer k;
     if (luaV_flttointeger(f, &k, 0)) {  /* does key fit in an integer? */
