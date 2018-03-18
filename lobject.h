@@ -745,6 +745,15 @@ LUAI_FUNC void luaO_chunkid (char *out, const char *source, size_t len);
 
 #define ttisarray(o)    checktag((o), ctb(LUA_TARRAY))
 
+#define avalue(o) check_exp(ttisarray(o), gco2a(val_(o).gc))
+
+#define setavalue(L,obj,x) \
+  { TValue *io = (obj); Array *x_ = (x); \
+    val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_TARRAY)); \
+    checkliveness(L,io); }
+
+#define setavalue2s(L,o,h)  setavalue(L,s2v(o),h)
+
 typedef struct Array {
   CommonHeader;
   unsigned int sizearray;  /* size of 'array' array */

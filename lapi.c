@@ -26,6 +26,7 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
+#include "larray.h"
 #include "ltm.h"
 #include "lundump.h"
 #include "lvm.h"
@@ -734,6 +735,19 @@ LUA_API void lua_createtable (lua_State *L, int narray, int nrec) {
   api_incr_top(L);
   if (narray > 0 || nrec > 0)
     luaH_resize(L, t, narray, nrec);
+  luaC_checkGC(L);
+  lua_unlock(L);
+}
+
+
+LUA_API void lua_createarray (lua_State *L, int narray) {
+  Array *a;
+  lua_lock(L);
+  a = luaA_new(L);
+  setavalue2s(L, L->top, a);
+  api_incr_top(L);
+  if (narray > 0)
+    luaA_resize(L, a, narray);
   luaC_checkGC(L);
   lua_unlock(L);
 }

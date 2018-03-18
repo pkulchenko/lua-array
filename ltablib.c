@@ -402,6 +402,11 @@ static int sort (lua_State *L) {
   return 0;
 }
 
+static int newarray (lua_State *L) {
+  lua_createarray(L, 0);
+  return 1;
+}
+
 /* }====================================================== */
 
 
@@ -413,6 +418,7 @@ static const luaL_Reg tab_funcs[] = {
   {"remove", tremove},
   {"move", tmove},
   {"sort", sort},
+  {"newarray", newarray},     /* DEBUG: just for testing the array type! */
   {NULL, NULL}
 };
 
