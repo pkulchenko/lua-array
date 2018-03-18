@@ -403,7 +403,12 @@ static int sort (lua_State *L) {
 }
 
 static int newarray (lua_State *L) {
-  lua_createarray(L, 0);
+  int i;
+  int n = lua_gettop(L);  /* number of elements */
+  lua_createarray(L, n);
+  lua_insert(L, 1);  /* put it at index 1 */
+  for (i = n; i >= 1; i--)  /* assign elements */
+    lua_seti(L, 1, i);
   return 1;
 }
 

@@ -25,56 +25,31 @@
 #include "larray.h"
 #include "lvm.h"
 
-void luaA_resize (lua_State *L, Array *a, unsigned int newsize) {
-  luaG_runerror(L, "luaA_resize not implemented!");
-#if 0
-  unsigned int i;
-  Table newt;  /* to keep the new hash part */
-  unsigned int oldasize = t->sizearray;
-  TValue *newarray;
-  /* create new hash part with appropriate size into 'newt' */
-  setnodevector(L, &newt, nhsize);
-  if (newasize < oldasize) {  /* will array shrink? */
-    t->sizearray = newasize;  /* pretend array has new size... */
-    exchangehashpart(t, &newt);  /* and new hash */
-    /* re-insert into the new hash the elements from vanishing slice */
-    for (i = newasize; i < oldasize; i++) {
-      if (!isempty(&t->array[i]))
-        luaH_setint(L, t, i + 1, &t->array[i]);
-    }
-    t->sizearray = oldasize;  /* restore current size... */
-    exchangehashpart(t, &newt);  /* and hash (in case of errors) */
-  }
-  /* allocate new array */
-  newarray = luaM_reallocvector(L, t->array, oldasize, newasize, TValue);
-  if (newarray == NULL && newasize > 0) {  /* allocation failed? */
-    freehash(L, &newt);  /* release new hash part */
-    luaM_error(L);  /* raise error (with array unchanged) */
-  }
-  /* allocation ok; initialize new part of the array */
-  exchangehashpart(t, &newt);  /* 't' has the new hash ('newt' has the old) */
-  t->array = newarray;  /* set new array part */
-  t->sizearray = newasize;
-  for (i = oldasize; i < newasize; i++)  /* clear new slice of the array */
-     setempty(&t->array[i]);
-  /* re-insert elements from old hash part into new parts */
-  reinsert(L, &newt, t);  /* 'newt' now has the old hash */
-  freehash(L, &newt);  /* free old hash part */
-#endif
-}
-
-
-/*
-** }=============================================================
-*/
-
-
 Array *luaA_new (lua_State *L) {
   GCObject *o = luaC_newobj(L, LUA_TARRAY, sizeof(Array));
   Array *a = gco2a(o);
   a->array = NULL;
   a->sizearray = 0;
   return a;
+}
+
+
+void luaA_resize (lua_State *L, Array *a, unsigned int newsize) {
+  unsigned int i;
+  unsigned int oldsize = a->sizearray;
+  TValue *newarray;
+
+  /* allocate new array */
+  newarray = luaM_reallocvector(L, a->array, oldsize, newsize, TValue);
+  if (newarray == NULL && newsize > 0) {  /* allocation failed? */
+    luaM_error(L);  /* raise error (with array unchanged) */
+  }
+
+  /* allocation ok; initialize new part of the array */
+  a->array = newarray;  /* set new array part */
+  a->sizearray = newsize;
+  for (i = oldsize; i < newsize; i++)  /* clear new slice of the array */
+     setempty(&a->array[i]);
 }
 
 
