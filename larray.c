@@ -76,7 +76,8 @@ const TValue *luaA_get (lua_State *L, Array *a, const TValue *key) {
       return luaO_nilobject;
   } else {
     /* TODO: the error message could be improved */
-    luaG_runerror(L, "attempt to index array with a non-integer value");
+    /*luaG_runerror(L, "attempt to index array with a non-integer value");*/
+    return luaO_nilobject;
   }
 }
 

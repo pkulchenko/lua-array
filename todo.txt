@@ -1,2 +1,3 @@
 issues:
 - had to remove "-E" liner option from makefile, otherwise running 'make' produces a linker error on macOS
+- luaG_typeerror: a -> an 

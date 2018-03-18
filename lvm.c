@@ -188,6 +188,11 @@ void luaV_finishget (lua_State *L, const TValue *t, TValue *key, StkId val,
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     if (slot == NULL) {  /* 't' is not a table? */
       lua_assert(!ttistable(t));
+      if (ttisarray(t)) {
+        /* get array value */
+        setobj2s(L, val, luaA_get(L, avalue(t), key));
+        return;
+      }
       tm = luaT_gettmbyobj(L, t, TM_INDEX);
       if (notm(tm))
         luaG_typeerror(L, t, "index");  /* no metamethod */
@@ -245,6 +250,8 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
       /* else will try the metamethod */
     }
     else {  /* not a table; check metamethod */
+      if(ttisarray(t))
+        luaG_typeerror(L, t, "set non-integer index of");
       tm = luaT_gettmbyobj(L, t, TM_NEWINDEX);
       if (notm(tm))
         luaG_typeerror(L, t, "index");
@@ -980,7 +987,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         TValue *rc = vRC(i);
         lua_Unsigned n;
         if (ttisinteger(rc)  /* fast track for integers? */
-            ? (n = ivalue(rc), luaV_fastgeti(L, rb, n, slot))
+            ? (n = ivalue(rc), luaV_fastgeti2(L, rb, n, slot))
             : luaV_fastget(L, rb, rc, slot, luaH_get)) {
           setobj2s(L, ra, slot);
         }
@@ -1036,7 +1043,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         TValue *rc = RKC(i);  /* value */
         lua_Unsigned n;
         if (ttisinteger(rb)  /* fast track for integers? */
-            ? (n = ivalue(rb), luaV_fastgeti(L, vra, n, slot))
+            ? (n = ivalue(rb), luaV_fastgeti2(L, vra, n, slot))
             : luaV_fastget(L, vra, rb, slot, luaH_get)) {
           luaV_finishfastset(L, vra, slot, rc);
         }
