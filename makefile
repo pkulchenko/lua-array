@@ -58,15 +58,23 @@ CWARNS= $(CWARNSCPP) $(CWARNSC) $(CWARNGCC)
 # -DLUA_USE_CTYPE -DLUA_USE_APICHECK
 # ('-ftrapv' for runtime checks of integer overflows)
 # -fsanitize=undefined -ftrapv -fno-inline
-# TESTS= -DLUA_USER_H='"ltests.h"' -O0 -g
+TESTS= 
+# PH: disabled tests -DLUA_USER_H='"ltests.h"' -O0
 
+# -mtune=native -fomit-frame-pointer
+# -fno-stack-protector
+# -DLUA_NILINTABLE
+LOCAL = $(TESTS) $(CWARNS) -g 
+# PH: disabled -DEXTERNMEMCHECK
 
 LOCAL = $(TESTS) $(CWARNS)
 
 
 # enable Linux goodies
 MYCFLAGS= $(LOCAL) -std=c99 -DLUA_USE_LINUX -DLUA_USE_READLINE
-MYLDFLAGS= $(LOCAL) -Wl,-E
+#MYLDFLAGS= $(LOCAL) -Wl,-E
+# PH: removed "-E" flag, otherwise 'make' failed on macOS
+MYLDFLAGS= $(LOCAL) -Wl
 MYLIBS= -ldl -lreadline
 
 
@@ -84,7 +92,7 @@ RM= rm -f
 LIBS = -lm
 
 CORE_T=	liblua.a
-CORE_O=	lapi.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
+CORE_O=	lapi.o larray.o lcode.o lctype.o ldebug.o ldo.o ldump.o lfunc.o lgc.o llex.o \
 	lmem.o lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o \
 	ltm.o lundump.o lvm.o lzio.o ltests.o
 AUX_O=	lauxlib.o
@@ -139,6 +147,8 @@ $(ALL_O): makefile ltests.h
 lapi.o: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
  ltable.h lundump.h lvm.h
+larray.o: larray.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
+ llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h lstring.h ltable.h lvm.h
 lauxlib.o: lauxlib.c lprefix.h lua.h luaconf.h lauxlib.h
 lbaselib.o: lbaselib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
 lcode.o: lcode.c lprefix.h lua.h luaconf.h lcode.h llex.h lobject.h \

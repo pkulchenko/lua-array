@@ -407,6 +407,16 @@ static int sort (lua_State *L) {
   return 0;
 }
 
+
+static int resize (lua_State *L) {
+  /* reserve capacity of the array part -- useful when filling large tables/arrays */ 
+  luaL_checktype(L, 1, LUA_TTABLE);
+  int size = luaL_checkinteger(L, 2);
+  lua_resize(L, 1, size);
+  return 0;
+}
+
+
 /* }====================================================== */
 
 
@@ -418,6 +428,7 @@ static const luaL_Reg tab_funcs[] = {
   {"remove", tremove},
   {"move", tmove},
   {"sort", sort},
+  {"resize", resize},
   {NULL, NULL}
 };
 

@@ -26,6 +26,7 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
+#include "larray.h"
 #include "ltm.h"
 #include "lundump.h"
 #include "lvm.h"
@@ -316,6 +317,12 @@ LUA_API int lua_isstring (lua_State *L, int idx) {
 LUA_API int lua_isuserdata (lua_State *L, int idx) {
   const TValue *o = index2value(L, idx);
   return (ttisfulluserdata(o) || ttislightuserdata(o));
+}
+
+
+LUA_API int lua_isarray (lua_State *L, int idx) {
+  const TValue *o = index2value(L, idx);
+  return (isvalid(o) && ttype(o) == LUA_TTABLE && hvalue(o)->truearray);
 }
 
 
@@ -766,6 +773,40 @@ LUA_API void lua_createtable (lua_State *L, int narray, int nrec) {
 }
 
 
+LUA_API void lua_createarray (lua_State *L, int narray) {
+  Array *a;
+  lua_lock(L);
+  a = luaA_new(L);
+  setavalue2s(L, L->top, a);
+  api_incr_top(L);
+  if (narray > 0)
+    luaA_resize(L, a, narray);
+  luaC_checkGC(L);
+  lua_unlock(L);
+}
+
+
+LUA_API void lua_resize (lua_State *L, int idx, int size) {
+  TValue *o;
+  Table *t;
+  unsigned int i;
+  lua_lock(L);
+  o = index2value(L, idx);
+  api_check(L, ttistable(o), "table expected");
+  t = hvalue(o);
+  unsigned int oldsize = t->sizeused;
+  if(size > t->sizearray)
+    luaH_resizearray(L, t, size);
+  lua_unlock(L);
+  /* set removed elements to nil when shrinking array size */
+  for(i = size + 1; i <= oldsize; i++) {
+    lua_pushnil(L);
+    lua_seti(L, idx, i);
+  }
+  t->sizeused = size;
+}
+
+
 LUA_API int lua_getmetatable (lua_State *L, int objindex) {
   const TValue *obj;
   Table *mt;
@@ -874,7 +915,10 @@ LUA_API void lua_seti (lua_State *L, int idx, lua_Integer n) {
   lua_lock(L);
   api_checknelems(L, 1);
   t = index2value(L, idx);
-  if (luaV_fastgeti(L, t, n, slot)) {
+  if (ttisarray(t)) {
+    luaA_setint(L, avalue(t), n, s2v(L->top - 1));
+  }
+  else if (luaV_fastgeti(L, t, n, slot)) {
     luaV_finishfastset(L, t, slot, s2v(L->top - 1));
   }
   else {

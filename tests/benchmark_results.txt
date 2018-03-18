@@ -1,0 +1,44 @@
+System info:
+
+macOS 10.13.3
+2,3 GHz Intel Core i7
+8 GB 1600 MHz DDR3
+
+---
+
+best of four, patched lua:
+
+~/lua-array$ ./lua tests/benchmark1.lua 
+Running benchmarks using tables...
+Insert           0.359120s
+Write            0.478326s
+Read             0.423190s
+Push             2.323120s
+Scatter-write    0.202547s
+Scatter-read     0.208194s
+Length           1.968719s
+
+Running benchmarks using arrays...
+Insert           0.318659s
+Write            0.455939s
+Read             0.419555s
+Push             0.419424s
+Scatter-write    0.180237s
+Scatter-read     0.169806s
+Length           0.124237s
+
+---
+
+best of four, unmodified lua:
+
+~/lua5.4$ ./lua ../lua-array/tests/benchmark1.lua 
+Running benchmarks using tables...
+Insert           0.352277s
+Write            0.470449s
+Read             0.428825s
+Push             2.268131s
+Scatter-write    0.216821s
+Scatter-read     0.199516s
+Length           1.999133s
+
+No arrays available; array benchmarks skipped!

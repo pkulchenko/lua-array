@@ -910,9 +910,14 @@ static void field (LexState *ls, ConsControl *cc) {
 }
 
 
-static void constructor (LexState *ls, expdesc *t) {
+static void constructor (LexState *ls, expdesc *t, int array) {
   /* constructor -> '{' [ field { sep field } [sep] ] '}'
      sep -> ',' | ';' */
+
+  /* special case for arrays (when 'array' is true):
+     constructor -> '[' [ listfield { sep listfield } [sep] ] ']'
+     sep -> ',' | ';' */
+
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
   int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
@@ -923,17 +928,31 @@ static void constructor (LexState *ls, expdesc *t) {
   init_exp(t, VNONRELOC, fs->freereg);  /* table will be at stack top */
   luaK_reserveregs(fs, 1);
   init_exp(&cc.v, VVOID, 0);  /* no value (yet) */
-  checknext(ls, '{');
+  luaK_exp2nextreg(ls->fs, t);  /* fix it at stack top */
+  checknext(ls, (array ? '[' : '{'));
   do {
     lua_assert(cc.v.k == VVOID || cc.tostore > 0);
-    if (ls->t.token == '}') break;
+    if (ls->t.token == (array ? ']' : '}')) break;
     closelistfield(fs, &cc);
-    field(ls, &cc);
+    if (array)
+      listfield(ls, &cc);
+    else
+      field(ls, &cc);
   } while (testnext(ls, ',') || testnext(ls, ';'));
-  check_match(ls, '}', '{', line);
+  check_match(ls, array ? ']' : '}', array ? '[' : '{', line);
   lastlistfield(fs, &cc);
   luaK_settablesize(fs, pc, t->u.info, cc.na, cc.nh);
+  /* encode arrayness by setting C to max value (255) */
+  if (array) {
+    /* make sure C is not already 255 */
+    /* I don't this can happen in practice (max size is luaO_fb2int(255) = 3221225472), but let's be sure... */
+    unsigned int c = GETARG_C(fs->f->code[pc]);
+    if (c == 255)
+      luaX_syntaxerror(fs->ls, "table too large"); 
+    SETARG_C(fs->f->code[pc], 255);
+  }
 }
+
 
 /* }====================================================================== */
 
@@ -1028,7 +1047,7 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
       break;
     }
     case '{': {  /* funcargs -> constructor */
-      constructor(ls, &args);
+      constructor(ls, &args, 0);
       break;
     }
     case TK_STRING: {  /* funcargs -> STRING */
@@ -1163,7 +1182,11 @@ static void simpleexp (LexState *ls, expdesc *v) {
       break;
     }
     case '{': {  /* constructor */
-      constructor(ls, v);
+      constructor(ls, v, 0);
+      return;
+    }
+    case '[': {  /* array constructor */
+      constructor(ls, v, 1);
       return;
     }
     case TK_FUNCTION: {

@@ -27,6 +27,7 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
+#include "larray.h"
 #include "ltm.h"
 #include "lvm.h"
 
@@ -291,6 +292,11 @@ void luaV_finishget (lua_State *L, const TValue *t, TValue *key, StkId val,
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     if (slot == NULL) {  /* 't' is not a table? */
       lua_assert(!ttistable(t));
+      if (ttisarray(t)) {
+        /* get array value */
+        setobj2s(L, val, luaA_get(L, avalue(t), key));
+        return;
+      }
       tm = luaT_gettmbyobj(L, t, TM_INDEX);
       if (l_unlikely(notm(tm)))
         luaG_typeerror(L, t, "index");  /* no metamethod */
@@ -339,12 +345,17 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
       if (tm == NULL) {  /* no metamethod? */
         luaH_finishset(L, h, key, slot, val);  /* set new value */
         invalidateTMcache(h);
+        /* enlarge array length when necessary */
+        /* this should be quite fast as fields of h and key have already been loaded to CPU cache at this point */  
+        h->sizeused += (val_(key).i > h->sizeused) & ttisinteger(key) & 1;
         luaC_barrierback(L, obj2gco(h), val);
         return;
       }
       /* else will try the metamethod */
     }
     else {  /* not a table; check metamethod */
+      if(ttisarray(t))
+        luaG_typeerror(L, t, "set non-integer index of");
       tm = luaT_gettmbyobj(L, t, TM_NEWINDEX);
       if (l_unlikely(notm(tm)))
         luaG_typeerror(L, t, "index");
@@ -688,6 +699,11 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
       tm = fasttm(L, h->metatable, TM_LEN);
       if (tm) break;  /* metamethod? break switch to call it */
       setivalue(s2v(ra), luaH_getn(h));  /* else primitive len */
+      return;
+    }
+    case LUA_TARRAY: {
+      Array *a = avalue(rb);
+      setivalue(s2v(ra), a->sizearray);
       return;
     }
     case LUA_VSHRSTR: {
@@ -1249,7 +1265,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         TValue *rb = vRB(i);
         int c = GETARG_C(i);
-        if (luaV_fastgeti(L, rb, c, slot)) {
+        if(ttisarray(rb)) {
+          setobj2s(L, ra, luaA_getint(avalue(rb), c));
+        }
+        else if (luaV_fastgeti(L, rb, c, slot)) {
           setobj2s(L, ra, slot);
         }
         else {
@@ -1302,7 +1321,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         int c = GETARG_B(i);
         TValue *rc = RKC(i);
-        if (luaV_fastgeti(L, s2v(ra), c, slot)) {
+        if(ttisarray(vra)) {
+          luaA_setint(L, avalue(vra), c, rc);
+        }
+        else if (luaV_fastgeti(L, s2v(ra), c, slot)) {
           luaV_finishfastset(L, s2v(ra), slot, rc);
         }
         else {
@@ -1325,8 +1347,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_NEWTABLE) {
-        int b = GETARG_B(i);  /* log2(hash size) + 1 */
+        int b = luaO_fb2int(GETARG_B(i));  /* log2(hash size) + 1 */
         int c = GETARG_C(i);  /* array size */
+        /* decode arrayness */
+        int array = (c == 255);
         Table *t;
         if (b > 0)
           b = 1 << (b - 1);  /* size is 2^(b - 1) */
@@ -1336,9 +1360,15 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         pc++;  /* skip extra argument */
         L->top = ra + 1;  /* correct top in case of emergency GC */
         t = luaH_new(L);  /* memory allocation */
+        t->truearray = array;
+        t->sizeused = b;
         sethvalue2s(L, ra, t);
-        if (b != 0 || c != 0)
-          luaH_resize(L, t, c, b);  /* idem */
+        if (b != 0 || c != 0) {
+          if (array)
+            luaH_resizearray(L, t, b);  /* idem */
+          else
+            luaH_resize(L, t, luaO_fb2int(c), b);  /* idem */
+        }
         checkGC(L, ra + 1);
         vmbreak;
       }
