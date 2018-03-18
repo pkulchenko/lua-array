@@ -466,7 +466,8 @@ void luaH_resize (lua_State *L, Table *t, unsigned int newasize,
     exchangehashpart(t, &newt);  /* and hash (in case of errors) */
   }
   /* allocate new array */
-  newarray = luaM_reallocvector(L, t->array, (t->truearray ? t->capacity : oldasize), newasize, TValue);
+  /* printf("realloc array %d -> %d\n", oldasize, newasize); */
+  newarray = luaM_reallocvector(L, t->array, oldasize, newasize, TValue);
   if (newarray == NULL && newasize > 0) {  /* allocation failed? */
     freehash(L, &newt);  /* release new hash part */
     luaM_error(L);  /* raise error (with array unchanged) */
@@ -476,7 +477,7 @@ void luaH_resize (lua_State *L, Table *t, unsigned int newasize,
   t->array = newarray;  /* set new array part */
   t->sizearray = newasize;
   for (i = oldasize; i < newasize; i++)  /* clear new slice of the array */
-     setempty(&t->array[i]);
+    setempty(&t->array[i]);
   /* re-insert elements from old hash part into new parts */
   reinsert(L, &newt, t);  /* 'newt' now has the old hash */
   freehash(L, &newt);  /* free old hash part */
@@ -526,7 +527,7 @@ Table *luaH_new (lua_State *L) {
   t->truearray = 0;
   t->array = NULL;
   t->sizearray = 0;
-  t->capacity = 0;
+  t->sizeused = 0;
   setnodevector(L, t, 0);
   return t;
 }
@@ -534,7 +535,7 @@ Table *luaH_new (lua_State *L) {
 
 void luaH_free (lua_State *L, Table *t) {
   freehash(L, t);
-  luaM_freearray(L, t->array, t->truearray ? t->capacity : t->sizearray);
+  luaM_freearray(L, t->array, t->sizearray);
   luaM_free(L, t);
 }
 
@@ -572,16 +573,15 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
     if(idx < 1)
       luaG_runerror(L, "invalid array index");
     /* enlarge capacity */
-    if(t->capacity < idx) {
-      capacity = (t->capacity * 3 / 2 + 3) & ~3;
+    if(t->sizearray < idx) {
+      capacity = t->sizearray * 2;
       if(capacity < idx)
-       capacity = idx;
-      //printf("enlarge capacity %d -> %d\n", t->capacity, capacity);
+        capacity = idx;
+      /* printf("enlarge capacity %d -> %d\n", t->capacity, capacity); */
       luaH_resizearray(L, t, capacity);
-      t->capacity = t->sizearray;
     }
-    t->sizearray = idx;
-    /* luaC_barrierback(L, obj2gco(t), key); is it necessary to call this here? */
+    t->sizeused = idx - 1;  /* luaV_finishset will add 1 to size used */
+    /*luaC_barrierback(L, obj2gco(t), key);*/ /* is it necessary to call this here? */
     return &t->array[idx - 1];
     /* TODO: is it safe to skip the rest of the function? especially call to luaC_barrierback() at the very end of the function? */
   } else if (ttisfloat(key)) {

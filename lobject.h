@@ -665,7 +665,7 @@ typedef struct Table {
   lu_byte lsizenode;  /* log2 of size of 'node' array */
   lu_byte truearray; /* 1 if the table is a true array (no hash part) */
   unsigned int sizearray;  /* size of 'array' array */
-  unsigned int capacity; /* capacity for true arrays (unused for regular tables) */
+  unsigned int sizeused; /* size reported by objlen for true arrays (unused for regular tables) */
   TValue *array;  /* array part */
   Node *node;
   Node *lastfree;  /* any free position is before this position */
