@@ -23,6 +23,7 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
+#include "larray.h"
 #include "ltm.h"
 
 
@@ -757,6 +758,9 @@ static void freeobj (lua_State *L, GCObject *o) {
       break;
     case LUA_TTABLE:
       luaH_free(L, gco2t(o));
+      break;
+    case LUA_TARRAY:
+      luaA_free(L, gco2a(o));
       break;
     case LUA_TTHREAD:
       luaE_freethread(L, gco2th(o));
