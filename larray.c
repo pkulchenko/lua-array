@@ -89,7 +89,7 @@ const TValue *luaA_getint (Array *a, lua_Integer key) {
   if (l_castS2U(key) - 1u < a->sizearray)
     return &a->array[key - 1];
   else
-    return luaH_emptyobject;
+    return luaO_nilobject;
 }
 
 const TValue *luaA_get (lua_State *L, Array *a, const TValue *key) {
@@ -98,7 +98,7 @@ const TValue *luaA_get (lua_State *L, Array *a, const TValue *key) {
     if (l_castS2U(ikey) - 1u < a->sizearray)
       return &a->array[ikey - 1];
     else
-      return luaH_emptyobject;
+      return luaO_nilobject;
   } else {
     /* TODO: the error message could be improved */
     luaG_runerror(L, "attempt to index array with a non-integer value");
