@@ -1,7 +1,6 @@
 - README.md
 - shrinking array capacity (table.remove?)
 - array constructor syntax "[...]"
-- scatter write benchmark
 
 issues:
 - had to remove "-E" liner option from makefile, otherwise running 'make' produces a linker error on macOS
