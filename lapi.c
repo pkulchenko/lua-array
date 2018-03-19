@@ -759,7 +759,8 @@ LUA_API void lua_reserve (lua_State *L, int idx, int size) {
   o = index2value(L, idx);
   api_check(L, ttistable(o), "table expected");
   t = hvalue(o);
-  luaH_resize (L, t, (size > t->sizearray ? size : t->sizearray), t->lsizenode);
+  luaH_resizearray(L, t, size > t->sizearray ? size : t->sizearray);
+  t->sizeused = size > t->sizeused ? size : t->sizeused;
   lua_unlock(L);
 }
 

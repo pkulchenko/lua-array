@@ -62,14 +62,30 @@ do
 	assert(#a == 3)
 end
 
--- test array reserve
+-- test filling hole in array
+do
+	local a = table.newarray(1, nil, 3)
+	a[2] = 2
+	assert(a[2] == 2)
+	assert(#a == 3)
+end
+
+-- test array reserve (array growing)
 do
 	local a = table.newarray(1, 2, 3)
 	table.reserve(a, 1000)
 	assert(#a == 1000)
 	a[1] = 4
-	a[10] = 6
+	a[10] = 10
+	a[11] = 11
 	assert(#a == 1000)
+end
+
+-- test array reserve (array not growing)
+do
+	local a = table.newarray(1, 2, 3, 4, 5)
+	table.reserve(a, 3)
+	assert(#a == 5)
 end
 
 -- test non-const integer
