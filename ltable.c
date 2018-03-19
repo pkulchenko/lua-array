@@ -581,9 +581,8 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
       luaH_resizearray(L, t, capacity);
     }
     t->sizeused = idx - 1;  /* luaV_finishset will add 1 to size used */
-    /*luaC_barrierback(L, obj2gco(t), key);*/ /* is it necessary to call this here? */
+    luaC_barrierback(L, obj2gco(t), key);
     return &t->array[idx - 1];
-    /* TODO: is it safe to skip the rest of the function? especially call to luaC_barrierback() at the very end of the function? */
   } else if (ttisfloat(key)) {
     lua_Number f = fltvalue(key);
     lua_Integer k;
