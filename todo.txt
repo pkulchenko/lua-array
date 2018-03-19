@@ -1,2 +1,8 @@
+- README.md
+- shrinking array capacity (table.remove?)
+- array constructor syntax "[...]"
+- add luaC_barrierback() back to luaH_newkey()
+- scatter write benchmark
+
 issues:
 - had to remove "-E" liner option from makefile, otherwise running 'make' produces a linker error on macOS
