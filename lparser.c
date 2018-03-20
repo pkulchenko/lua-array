@@ -724,9 +724,14 @@ static void field (LexState *ls, struct ConsControl *cc) {
 }
 
 
-static void constructor (LexState *ls, expdesc *t) {
+static void constructor (LexState *ls, expdesc *t, int array) {
   /* constructor -> '{' [ field { sep field } [sep] ] '}'
      sep -> ',' | ';' */
+
+  /* special case for arrays (when 'array' is true):
+     constructor -> '[' [ listfield { sep listfield } [sep] ] ']'
+     sep -> ',' | ';' */
+
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
   int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
@@ -736,18 +741,22 @@ static void constructor (LexState *ls, expdesc *t) {
   init_exp(t, VRELOC, pc);
   init_exp(&cc.v, VVOID, 0);  /* no value (yet) */
   luaK_exp2nextreg(ls->fs, t);  /* fix it at stack top */
-  checknext(ls, '{');
+  checknext(ls, (array ? '[' : '{'));
   do {
     lua_assert(cc.v.k == VVOID || cc.tostore > 0);
-    if (ls->t.token == '}') break;
+    if (ls->t.token == (array ? ']' : '}')) break;
     closelistfield(fs, &cc);
-    field(ls, &cc);
+    if (array)
+      listfield(ls, &cc);
+    else
+      field(ls, &cc);
   } while (testnext(ls, ',') || testnext(ls, ';'));
-  check_match(ls, '}', '{', line);
+  check_match(ls, array ? ']' : '}', array ? '[' : '{', line);
   lastlistfield(fs, &cc);
   SETARG_B(fs->f->code[pc], luaO_int2fb(cc.na)); /* set initial array size */
   SETARG_C(fs->f->code[pc], luaO_int2fb(cc.nh));  /* set initial table size */
 }
+
 
 /* }====================================================================== */
 
@@ -841,7 +850,7 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
       break;
     }
     case '{': {  /* funcargs -> constructor */
-      constructor(ls, &args);
+      constructor(ls, &args, 0);
       break;
     }
     case TK_STRING: {  /* funcargs -> STRING */
@@ -981,7 +990,11 @@ static void simpleexp (LexState *ls, expdesc *v) {
       break;
     }
     case '{': {  /* constructor */
-      constructor(ls, v);
+      constructor(ls, v, 0);
+      return;
+    }
+    case '[': {  /* array constructor */
+      constructor(ls, v, 1);
       return;
     }
     case TK_FUNCTION: {
