@@ -14,6 +14,20 @@ local a = [1, 2, 3, [4, 5]]
 local a = [1, nil, 2, 3, nil]
 print(#a) --> 5
 
+-- caveat: array indices can only be positive (non-zero) integers
+local a = []
+a[-1] = 1 	--> error: invalid array index
+a.foo = 1 	--> error: invalid array index
+
+-- caveat: array are dense by nature and array constructors don't support named or sparse elements
+-- use tables if you need them
+local a = [1, [3] = true]	--> syntax error
+local a = [1, b = true]		--> syntax error
+
+-- caveat: syntactic sugar for function call syntax f{...} -> f({...}) does not have
+-- an equivalent sugar for arrays because the grammar would be ambiguous
+local a = fun[1] 	-- indexing table 'fun' (never a function call)
+
 -- arrays grow to fit new keys automatically
 local a = []
 a[10] = true
@@ -38,5 +52,11 @@ print(#a) --> 10
 local a = [1, 2, 3]
 table.remove(a, 1)	--> a = [2, 3]
 
--- TODO: pack & unpack work as you'd expect
+-- table.pack() is not needed for a version of Lua with arrays, as nils and array size can be stored in an array naturally
+-- tables a and b would be equivalent:
+local a = pack(1, 2, 3)
+local b = [1, 2, 3]
+
+-- table.unpack() works with arrays as you'd expect:
+table.unpack([1, nil, 3]) --> 1, nil, 3
 ~~~~
