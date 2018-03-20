@@ -6,11 +6,12 @@ An array does not suffer from the problem with holes, a well known issue with Lu
 
 Elements of an array are always stored consequently in memory, so value retrieval and setting can be made in constant time, provided that the array is sufficiently large to fit the new keys. Similarly '#' length operator is always O(1). This has positive performance implications, especially when scatter reading or writing to an array, compared to regular tables (see benchmarks).
 
+~~~~
 -- arrays are constructed using [...] syntax
-local a ≈ [1, 2, 3, [4, 5]]
+local a = [1, 2, 3, [4, 5]]
 
 -- an array can contain nils without problems
-local a ≈ [1, nil, 2, 3, nil]
+local a = [1, nil, 2, 3, nil]
 print(#a) --> 5
 
 -- arrays grow to fit new keys automatically
@@ -38,3 +39,4 @@ local a = [1, 2, 3]
 table.remove(a, 1)	--> a = [2, 3]
 
 -- TODO: pack & unpack work as you'd expect
+~~~~
