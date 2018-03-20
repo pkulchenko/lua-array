@@ -121,6 +121,7 @@ LUAI_DDEF const lu_byte luaP_opmodes[NUM_OPCODES] = {
  ,opmode(0, 0, 0, 0, iABC)		/* OP_SETI */
  ,opmode(0, 0, 0, 0, iABC)		/* OP_SETFIELD */
  ,opmode(0, 0, 0, 1, iABC)		/* OP_NEWTABLE */
+ ,opmode(0, 0, 0, 1, iABC)    /* OP_NEWARRAY */
  ,opmode(0, 0, 0, 1, iABC)		/* OP_SELF */
  ,opmode(0, 0, 0, 1, iABC)		/* OP_ADDI */
  ,opmode(0, 0, 0, 1, iABC)		/* OP_SUBI */

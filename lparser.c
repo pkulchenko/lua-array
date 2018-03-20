@@ -734,7 +734,7 @@ static void constructor (LexState *ls, expdesc *t, int array) {
 
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
+  int pc = luaK_codeABC(fs, array ? OP_NEWARRAY : OP_NEWTABLE, 0, 0, 0);
   struct ConsControl cc;
   cc.na = cc.nh = cc.tostore = 0;
   cc.t = t;

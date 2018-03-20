@@ -36,6 +36,7 @@ static void *disptab[] = {
 &&L_OP_SETI,
 &&L_OP_SETFIELD,
 &&L_OP_NEWTABLE,
+&&L_OP_NEWARRAY,
 &&L_OP_SELF,
 &&L_OP_ADDI,
 &&L_OP_SUBI,

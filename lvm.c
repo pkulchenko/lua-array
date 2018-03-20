@@ -1074,6 +1074,20 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         checkGC(L, ra + 1);
         vmbreak;
       }
+      vmcase(OP_NEWARRAY) {
+        int b = GETARG_B(i);
+        int arraysize = luaO_fb2int(b);
+        Table *t;
+        L->top = ci->top;  /* correct top in case of GC */
+        t = luaH_new(L);  /* memory allocation */
+        t->truearray = 1;
+        sethvalue2s(L, ra, t);
+        if (b != 0)
+          luaH_resizearray(L, t, arraysize);  /* idem */
+        t->sizeused = arraysize;
+        checkGC(L, ra + 1);
+        vmbreak;
+      }
       vmcase(OP_SELF) {
         const TValue *slot;
         TValue *rb = vRB(i);
