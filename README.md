@@ -52,10 +52,10 @@ print(#a) --> 10
 local a = [1, 2, 3]
 table.remove(a, 1)	--> a = [2, 3]
 
--- table.pack() is not needed for a version of Lua with arrays, as nils and array size can be stored in an array naturally
--- tables a and b would be equivalent:
-local a = pack(1, 2, 3)
-local b = [1, 2, 3]
+-- table.pack() is not needed for a version of Lua with arrays, as nils and array size 
+-- can be stored naturally in an array
+local a = table.pack(1, 2, 3)	-- not needed	
+local a = [1, nil, 3]			-- use this instead
 
 -- table.unpack() works with arrays as you'd expect:
 table.unpack([1, nil, 3]) --> 1, nil, 3
