@@ -1,4 +1,3 @@
-- README.md
 - shrinking array capacity (table.remove?)
 - disable ltests and asserts (how?)
 - pack/unpack to use arrays
