@@ -780,6 +780,8 @@ static lua_Unsigned hash_search (Table *t, lua_Unsigned j) {
 ** to find a boundary in the hash part.
 */
 lua_Unsigned luaH_getn (Table *t) {
+  if(t->truearray)
+    return t->sizeused;
   unsigned int j = t->sizearray;
   if (j > 0 && isempty(&t->array[j - 1])) {
     unsigned int i = 0;
