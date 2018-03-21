@@ -139,6 +139,30 @@ do
 	assert(#a == 2)
 end
 
+-- test ipairs
+-- expected behavior: equivalent to for i=1,#a do print(i, a[i]) end
+do
+	local a = [1, nil, 3]
+	local cnt = 0
+	for i,v in ipairs(a) do
+		assert(i == v)
+		cnt = cnt + 1
+	end
+	assert(cnt == #a)
+end
+
+-- test pairs
+-- expected behavior: same as ipairs?
+do
+	local a = [1, nil, 3]
+	local cnt = 0
+	for k,v in pairs(a) do
+		assert(k == v)
+		cnt = cnt + 1
+	end
+	assert(cnt == 3)
+end
+
 if not errors then
 	print("All tests passed!")
 end

@@ -1,4 +1,4 @@
-This is a experimental patch/hack that adds "first class citizen" support for arrays to Lua 5.4-work1. The goal of the patch is to not be a production ready solution -- there are surely several bugs with the implementation. For example, the Lua C API and metatables have not been tested at all. It should be merely treated as a proof of concept that could be used to evaluate the general feasibility of arrays in Lua.
+This is a experimental patch/hack that adds first class support for arrays to Lua 5.4-work1. The goal of the patch is to not be a production ready solution -- there are surely several bugs with the implementation. For example, the Lua C API and metatables have not been tested at all. It should be merely treated as a proof of concept that could be used to evaluate the general feasibility of arrays in Lua.
 
 Arrays are implemented as a subtype of tables. In fact, the implementation reuses the table data structures inside Lua VM. Internally an array is a table with only integer keys starting at index 1 and all key-values are stored in the array part of the table data structure.
 
@@ -24,9 +24,10 @@ a.foo = 1 	--> error: invalid array index
 local a = [1, [3] = true]	--> syntax error
 local a = [1, b = true]		--> syntax error
 
--- caveat: syntactic sugar for function call syntax f{...} -> f({...}) does not have
--- an equivalent sugar for arrays because the grammar would be ambiguous
-local a = fun[1] 	-- indexing table 'fun' (never a function call)
+-- syntactic sugar for function call syntax f{...} -> f({...}) does not have
+-- an equivalent for arrays because the grammar would be ambiguous
+local a = fun[1] 	-- indexing table 'fun'
+local a = fun([1])	-- call function 'fun' with array as an argument
 
 -- arrays grow to fit new keys automatically
 local a = []
@@ -57,6 +58,8 @@ table.remove(a, 1)	--> a = [2, 3]
 local a = table.pack(1, 2, 3)	-- not needed	
 local a = [1, nil, 3]			-- use this instead
 
--- table.unpack() works with arrays as you'd expect:
+-- table.unpack() works with arrays as you'd expect
 table.unpack([1, nil, 3]) --> 1, nil, 3
+
+-- TODO: ipairs() and pairs()
 ~~~~

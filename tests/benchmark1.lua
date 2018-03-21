@@ -69,9 +69,9 @@ print("")
 collectgarbage()
 collectgarbage()
 
-if table.newarray then
+if table.reserve then
 	print("Running benchmarks using arrays:")
-	run_benchmarks(table.newarray)
+	run_benchmarks(function() return [] end)
 else
 	print("No arrays available; array benchmarks skipped!")
 end

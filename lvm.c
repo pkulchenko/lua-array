@@ -235,7 +235,9 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
       if (tm == NULL) {  /* no metamethod? */
         if (slot == luaH_emptyobject)  /* no previous entry? */
           slot = luaH_newkey(L, h, key);  /* create one */
-        h->sizeused++;
+        /* enlarge array length when necessary */
+        if(ttisinteger(key) && val_(key).i > h->sizeused)
+          h->sizeused++;
         /* no metamethod and (now) there is an entry with given key */
         setobj2t(L, cast(TValue *, slot), val);  /* set its new value */
         invalidateTMcache(h);
