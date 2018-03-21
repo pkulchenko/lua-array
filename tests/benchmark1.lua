@@ -71,7 +71,8 @@ collectgarbage()
 
 if table.resize then
 	print("Running benchmarks using arrays:")
-	run_benchmarks(function() return [] end)
+	local newarray = load("return function() return [] end")()
+	run_benchmarks(newarray)
 else
 	print("No arrays available; array benchmarks skipped!")
 end

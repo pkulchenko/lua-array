@@ -43,12 +43,14 @@ CWARNS= $(CWARNSCPP) $(CWARNSC)
 # -DLUA_USE_CTYPE -DLUA_USE_APICHECK
 # (in clang, '-ftrapv' for runtime checks of integer overflows)
 # -fsanitize=undefined -ftrapv -fno-inline
-TESTS= -DLUA_USER_H='"ltests.h"' -O0
+TESTS= 
+# PH: disabled tests -DLUA_USER_H='"ltests.h"' -O0
 
 # -mtune=native -fomit-frame-pointer
 # -fno-stack-protector
 # -DLUA_NILINTABLE
-LOCAL = $(TESTS) $(CWARNS) -g -DEXTERNMEMCHECK
+LOCAL = $(TESTS) $(CWARNS) -g 
+# PH: disabled -DEXTERNMEMCHECK
 
 
 
