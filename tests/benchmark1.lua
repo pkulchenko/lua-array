@@ -1,30 +1,31 @@
-repeat_count = 5	-- how many times to repeat tests
+repeat_count = 3	-- how many times to repeat tests
 
 function printf(...)
 	print(string.format(...))
 end
 
 function print_results(results)
-	local tests = { "Insert", "Write", "Read", "Push", "Scatter-write", "Scatter-read" }
+	local tests = { "Insert", "Write", "Read", "Push", "Scatter-write", "Scatter-read", "Length" }
 	for i=1,#results do
-		printf("%-16s %fs", tests[i], results[i])
+		if results[i] then
+			printf("%-16s %fs", tests[i], results[i])
+		end
 	end
 end
 
 function run_benchmarks(table_ctor)
-	local t = table_ctor()
-	local t2 = table_ctor()
-	local t3 = table_ctor()
-
 	-- accumulated results
 	local acc = {}
 
 	for cnt=1,repeat_count do
-		io.write(string.format("\r%d%%", (cnt-1) * 100 / repeat_count))
+		io.write(string.format("\r%.1f%%", (cnt-1) * 100 / repeat_count))
 		io.flush()
 		collectgarbage()
 		collectgarbage()
 
+		local t = table_ctor()
+		local t2 = table_ctor()
+		local t3 = table_ctor()
 		local results = {}
 
 		-- insert
@@ -80,6 +81,15 @@ function run_benchmarks(table_ctor)
 			x = t3[pos]
 		end
 		results[6] = os.clock() - start
+
+		-- length
+		local start = os.clock()
+		math.randomseed(12345)
+		local x
+		for i=1,10000000 do
+			x = #t3
+		end
+		results[7] = os.clock() - start
 
 		-- accumulate
 		for i=1,#results do
