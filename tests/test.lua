@@ -90,10 +90,20 @@ do
 	assert(#a == 3)
 end
 
--- test array reserve (array growing)
+-- test read out of bounds
 do
 	local a = [1, 2, 3]
-	table.reserve(a, 1000)
+	assert(#a == 3)
+	assert(a[0] == nil)
+	assert(a[4] == nil)
+	assert(#a == 3)
+end
+
+-- test array resize (array growing)
+do
+	local a = [1, 2, 3]
+	table.resize(a, 1000)
+	assert(a[4] == nil)
 	assert(#a == 1000)
 	a[1] = 4
 	a[10] = 10
@@ -101,11 +111,16 @@ do
 	assert(#a == 1000)
 end
 
--- test array reserve (array not growing)
+-- test array resize (array shrinking)
 do
 	local a = [1, 2, 3, 4, 5]
-	table.reserve(a, 3)
-	assert(#a == 5)
+	table.resize(a, 3)
+	assert(a[1] == 1)
+	assert(a[2] == 2)
+	assert(a[3] == 3)
+	assert(a[4] == nil)
+	assert(a[5] == nil)
+	assert(#a == 3)
 end
 
 -- test non-const integer

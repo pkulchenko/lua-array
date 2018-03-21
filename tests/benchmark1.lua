@@ -69,7 +69,7 @@ print("")
 collectgarbage()
 collectgarbage()
 
-if table.reserve then
+if table.resize then
 	print("Running benchmarks using arrays:")
 	run_benchmarks(function() return [] end)
 else

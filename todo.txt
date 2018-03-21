@@ -1,7 +1,5 @@
-- shrinking array capacity (table.remove?)
 - disable ltests and asserts (how?)
 - pack/unpack to use arrays
-- table.resize()
 
 issues:
 - had to remove "-E" liner option from makefile, otherwise running 'make' produces a linker error on macOS
