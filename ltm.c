@@ -268,8 +268,11 @@ int luaT_keydef (lua_State *L, TValue *obj, TValue *key, int remove) {
     if (tm == NULL) {  /* no metamethod? */
       const TValue *val = luaH_get(t, key);  /* get entry */
       int res = !isempty(val);  /* true if entry is not empty */
-      if (remove && res)  /* key is present and should be removed? */
+      if (remove && res) { /* key is present and should be removed? */
         setempty(cast(TValue*, val));  /* remove it */
+        /* decrement array size */
+        t->sizeused--;
+      }
       return res;
     }
     /* else will call metamethod 'tm' */
