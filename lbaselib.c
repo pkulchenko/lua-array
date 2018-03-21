@@ -273,6 +273,16 @@ static int ipairsaux (lua_State *L) {
   return (lua_geti(L, 1, i) == LUA_TNIL) ? 1 : 2;
 }
 
+/*
+** Traversal function for 'ipairs' specialized for arrays.
+*/
+static int ipairsauxarray (lua_State *L) {
+  lua_Integer i = luaL_checkinteger(L, 2) + 1;
+  lua_pushinteger(L, i);
+  lua_geti(L, 1, i);
+  return (lua_objlen(L, 1) == i-1) ? 1 : 2;
+}
+
 
 /*
 ** 'ipairs' function. Returns 'ipairsaux', given "table", 0.
@@ -280,7 +290,7 @@ static int ipairsaux (lua_State *L) {
 */
 static int luaB_ipairs (lua_State *L) {
   luaL_checkany(L, 1);
-  lua_pushcfunction(L, ipairsaux);  /* iteration function */
+  lua_pushcfunction(L, lua_isarray(L, 1) ? ipairsauxarray : ipairsaux);  /* iteration function */
   lua_pushvalue(L, 1);  /* state */
   lua_pushinteger(L, 0);  /* initial value */
   return 3;

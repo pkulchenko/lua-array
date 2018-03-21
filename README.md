@@ -61,5 +61,12 @@ local a = [1, nil, 3]			-- use this instead
 -- table.unpack() works with arrays as you'd expect
 table.unpack([1, nil, 3]) --> 1, nil, 3
 
--- TODO: ipairs() and pairs()
+-- ipairs() iterates all integer keys of an array
+for i,v in ipairs([1,nil,3,nil]) do print(i, v) end
+-->	1	1
+--	2	nil
+--	3	3
+--	4	nil
+
+-- TODO: pairs()
 ~~~~

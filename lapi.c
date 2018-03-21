@@ -299,6 +299,12 @@ LUA_API int lua_isuserdata (lua_State *L, int idx) {
 }
 
 
+LUA_API int lua_isarray (lua_State *L, int idx) {
+  const TValue *o = index2value(L, idx);
+  return (isvalid(o) && ttype(o) == LUA_TTABLE && hvalue(o)->truearray);
+}
+
+
 LUA_API int lua_rawequal (lua_State *L, int index1, int index2) {
   const TValue *o1 = index2value(L, index1);
   const TValue *o2 = index2value(L, index2);

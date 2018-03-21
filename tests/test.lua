@@ -131,21 +131,19 @@ end
 -- test table.remove()
 do
 	local a = [1, 2, 3]
-	print("#a before = ", #a)
 	table.remove(a, 1)
 	assert(a[1] == 2)
 	assert(a[2] == 3)
-	print("#a after = ", #a)
 	assert(#a == 2)
 end
 
 -- test ipairs
 -- expected behavior: equivalent to for i=1,#a do print(i, a[i]) end
 do
-	local a = [1, nil, 3]
+	local a = [1, nil, 3, nil]
 	local cnt = 0
-	for i,v in ipairs(a) do
-		assert(i == v)
+	for k,v in ipairs(a) do
+		assert(v == a[k])
 		cnt = cnt + 1
 	end
 	assert(cnt == #a)
@@ -157,7 +155,7 @@ do
 	local a = [1, nil, 3]
 	local cnt = 0
 	for k,v in pairs(a) do
-		assert(k == v)
+		assert(v == a[k])
 		cnt = cnt + 1
 	end
 	assert(cnt == 3)
