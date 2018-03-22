@@ -235,11 +235,12 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
       if (tm == NULL) {  /* no metamethod? */
         if (slot == luaH_emptyobject)  /* no previous entry? */
           slot = luaH_newkey(L, h, key);  /* create one */
-        /* enlarge array length when necessary */
-        h->sizeused += (val_(key).i > h->sizeused) & ttisinteger(key) & 1;
         /* no metamethod and (now) there is an entry with given key */
         setobj2t(L, cast(TValue *, slot), val);  /* set its new value */
         invalidateTMcache(h);
+        /* enlarge array length when necessary */
+        /* this should be quite fast as fields of h and key have already been loaded to CPU cache at this point */  
+        h->sizeused += (val_(key).i > h->sizeused) & ttisinteger(key) & 1;
         luaC_barrierback(L, obj2gco(h), val);
         return;
       }

@@ -1,4 +1,4 @@
-repeat_count = 3	-- how many times to repeat tests
+repeat_count = 1	-- how many times to repeat tests
 
 function printf(...)
 	print(string.format(...))
@@ -38,7 +38,11 @@ function run_benchmarks(table_ctor)
 		-- write
 		local start = os.clock()
 		for i=1,10000000 do
-			t[i] = i
+			t[i] = 1
+			t[i] = 2
+			t[i] = 3
+			t[i] = 4
+			t[i] = 5
 		end
 		results[2] = os.clock() - start
 
@@ -47,12 +51,20 @@ function run_benchmarks(table_ctor)
 		local x
 		for i=1,10000000 do
 			x = t[i]
+			x = t[i]
+			x = t[i]
+			x = t[i]
+			x = t[i]
 		end
 		results[3] = os.clock() - start
 
 		-- push back
 		local start = os.clock()
-		for i=1,10000000/2 do
+		for i=1,10000000/5 do
+			t2[#t2+1] = i
+			t2[#t2+1] = i
+			t2[#t2+1] = i
+			t2[#t2+1] = i
 			t2[#t2+1] = i
 		end
 		results[4] = os.clock() - start
@@ -66,8 +78,14 @@ function run_benchmarks(table_ctor)
 
 		-- scatter write
 		local start = os.clock()
-		for i=1,10000000/2 do
+		for i=1,10000000,4 do
 			local pos = t[i]
+			t3[pos] = i
+			local pos = t[i+1]
+			t3[pos] = i
+			local pos = t[i+2]
+			t3[pos] = i
+			local pos = t[i+3]
 			t3[pos] = i
 		end
 		results[5] = os.clock() - start
@@ -76,8 +94,14 @@ function run_benchmarks(table_ctor)
 		local start = os.clock()
 		math.randomseed(12345)
 		local x
-		for i=1,10000000 do
+		for i=1,10000000,4 do
 			local pos = t[i]
+			x = t3[pos]
+			local pos = t[i+1]
+			x = t3[pos]
+			local pos = t[i+2]
+			x = t3[pos]
+			local pos = t[i+3]
 			x = t3[pos]
 		end
 		results[6] = os.clock() - start
@@ -86,7 +110,12 @@ function run_benchmarks(table_ctor)
 		local start = os.clock()
 		math.randomseed(12345)
 		local x
-		for i=1,10000000 do
+		for i=1,2000000 do
+			x = #t
+			x = #t2
+			x = #t3
+			x = #t
+			x = #t2
 			x = #t3
 		end
 		results[7] = os.clock() - start
