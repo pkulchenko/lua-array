@@ -4,9 +4,9 @@ Arrays are implemented as a subtype of tables. In fact, the implementation reuse
 
 An array does not suffer from the problem with holes, a well known issue with Lua tables and the '#' length operator, because an array always has an explicit size. Insertions to an array potentially enlarges the array, so that if a new key is outside the bounds of the array, the array is resized to fit the new element. To shrink an array, the code has to be explicit about it by using the table.resize() or table.remove() functions. An array can be considered to be a dense table (as opposed to sparse regular Lua tables). 
 
-Elements of an array are always stored sequentially in memory, so value retrieval and setting happen in constant time, provided that the array access is within the bounds of the array. The '#' length operator for arrays is O(1). This has positive performance implications (especially when scatter reading or writing to an array) compared to regular tables (see benchmarks).
+Elements of an array are always stored sequentially in memory, so value retrieval and setting happen in constant time, provided that the array access is within the bounds of the array. The '#' length operator for arrays is O(1). Together these have positive performance implications compared to regular tables (see benchmarks).
 
-The implementation has been carefully designed not to affect negatively the performance of regular Lua tables (see benchmarks and implementation notes at the end).
+The implementation has been carefully designed to not negatively affect the performance of regular Lua tables (see benchmarks and implementation notes at the end).
 
 ~~~~
 -- arrays are constructed using [...] syntax
