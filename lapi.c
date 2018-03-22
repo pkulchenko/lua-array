@@ -768,7 +768,8 @@ LUA_API void lua_resize (lua_State *L, int idx, int size) {
   api_check(L, ttistable(o), "table expected");
   t = hvalue(o);
   unsigned int oldsize = t->sizeused;
-  luaH_resizearray(L, t, size > t->sizearray ? size : t->sizearray);
+  if(size > t->sizearray)
+    luaH_resizearray(L, t, size);
   lua_unlock(L);
   /* set removed elements to nil when shrinking array size */
   for(i = size + 1; i <= oldsize; i++) {
