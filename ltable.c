@@ -580,7 +580,7 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
       /* printf("enlarge capacity %d -> %d\n", t->capacity, capacity); */
       luaH_resizearray(L, t, capacity);
     }
-    t->sizeused = idx - 1;  /* luaV_finishset will add 1 to size used */
+    t->sizeused = idx;
     luaC_barrierback(L, obj2gco(t), key);
     return &t->array[idx - 1];
   } else if (ttisfloat(key)) {
