@@ -124,6 +124,6 @@ In addition to the other benefits, in my opinion the inclusion of an array type 
 
 # Implementation details
 
-The implementation adds two new fields to the Table structure: "truearray" and "sizeused". True array is a single boolean that does not increase the memory consumption of Table struct, because of C struct packing and alignment rules. "Sizeused" is used to track the used size of the array as reported by '#', and it adds 4 or 8 bytes (depending whether Lua is compiled as a 32 or 64-bit application) to the size of the struct, but this does not seem to affect the CPU cache hit ratio or slow down the interpreter.
+The implementation adds two new fields to the Table structure: "truearray" and "sizeused". "Truearray" is a 8-bit boolean field that does not increase the memory consumption of Table struct, because of C struct packing and alignment rules. "Sizeused" is used to track the used size of the array as reported by '#', and it adds 4 or 8 bytes (depending whether Lua is compiled as a 32 or 64-bit application) to the size of the struct, but this does not seem to affect the CPU cache hit ratio or slow down the interpreter.
 
 The implementation has been carefully designed to not increase the size of the main VM loop, which could negatively affect performance. Particularly no new opcodes have been added to the VM. Incrementing "sizeused" when setting array elements is implemented without branching and CPU cache usage has also been taken into account.
