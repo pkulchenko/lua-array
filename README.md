@@ -4,7 +4,7 @@ Arrays are implemented as a subtype of tables. In fact, the implementation reuse
 
 An array does not suffer from the problem with holes, a well known issue with Lua tables and the '#' length operator, because an array always has an explicit size. Insertions to an array potentially enlarges the array, so that if a new key is outside the bounds of the array, the array is resized to fit the new element. To shrink an array, the code has to be explicit about it by using the table.resize() or table.remove() functions. An array can be considered to be a dense table (as opposed to sparse regular Lua tables). 
 
-Elements of an array are always stored sequentially in memory, so value retrieval and setting happen in constant time, provided that the array access is within the bounds of the array. The '#' length operator for arrays is O(1). Together these have positive performance implications compared to regular tables (see benchmarks).
+Elements of an array are always stored sequentially in memory, so value retrieval and setting happen in constant time, provided that the array access is within the bounds of the array. The '#' length operator for arrays is O(1). Together these have positive performance implications compared to regular tables.
 
 The implementation has been carefully designed to not negatively affect the performance of regular Lua tables (see benchmarks and implementation notes at the end).
 
@@ -50,7 +50,7 @@ print(#a) --> 10
 local a = [1, 2, 3]
 table.remove(a, 1)	--> a = [2, 3]
 
--- table.pack() is not needed for a version of Lua with arrays, as nils and array size 
+-- table.pack() is not needed for a version of Lua with arrays, as nils  
 -- can be stored naturally in an array
 local a = table.pack(1, 2, 3)	-- not needed	
 local a = [1, nil, 3]			-- use this instead
@@ -60,10 +60,7 @@ table.unpack([1, nil, 3]) --> 1, nil, 3
 
 -- there is no difference between pairs() and ipairs(); both iterate all integer keys of an array in numeric order
 for i,v in ipairs([1,nil,3,nil]) do print(i, v) end
--->	1	1
---	2	nil
---	3	3
---	4	nil
+--> (1 1) (2 nil) (3 3) (4 nil)
 
 -- syntactic sugar for function call syntax f{...} -> f({...}) does not have
 -- an equivalent for arrays because the grammar would be ambiguous
@@ -73,9 +70,9 @@ local a = fun([1])	-- call function 'fun' with array as an argument
 
 # Benchmarks
 
-A number of benchmarks stressing table and array operations were run on unmodified and patched version of Lua 5.4. The benchmarks were repeated 4 times and the best result was chosen in each case. See the following table. In the "Unmofified Tables" column are the results for unmodified Lua 5.4-work1. The "Patched Tables" column shows the results of the benchmarks for patched Lua but still using regular tables. The "Patches Arrays" column shows the results for the benchmarks when using arrays.
+A number of benchmarks stressing table and array operations were run on unmodified and patched version of Lua 5.4. The benchmarks were repeated 4 times and the best result was chosen in each case out of these 4 runs. See the following table. In the "Unmodified Tables" column are the results for unmodified Lua 5.4-work1. The "Patched Tables" column shows the results of the benchmarks for patched Lua but still using regular tables. The "Patches Arrays" column shows the results for the benchmarks when using arrays.
 
-The benchmarks show that there is no noticeable performance difference between the unmodified and patched version of Lua when using tables. The small differences in execution times vary from run to run because of varying system load, base address randomization of the Lua executable and other factors. The first two columns show that addition of an array subtype for tables does not negatively impact the performance of regular tables, which is good. When using arrays, "Push" and "Length" benchmarks show significant performance increases, and "Insert", "Scatter-Write" and "Scatter-read" are also clearly faster. The major performance increase of "Push" and "Length" is mainly due to the O(1) implementation of the '#' operator.
+The benchmarks show that there is no noticeable performance difference between the unmodified and patched version of Lua when using tables. The small differences in execution times vary from run to run because of varying system load, base address randomization of the Lua executable and other factors. The first two columns show that the addition of an array subtype for tables does not negatively impact the performance of regular tables. When using arrays, "Push" and "Length" benchmarks show significant performance increases, and "Insert", "Scatter-Write" and "Scatter-read" are also clearly faster. The major performance increase of "Push" and "Length" is mainly due to the O(1) implementation of the '#' operator.
 
 ~~~~
 Benchmark        Unmodified    Patched   Patched
@@ -92,7 +89,7 @@ Length           1.999s        1.969s    0.124s
 
 ## About the benchmarks
 
-The benchmarks were run on macOS 10.13.3 with a Intel Core i7 CPU running at 2.3 GHz and with 8 GB 1600 MHz DDR3 RAM. For benchmarking Lua API checks were disabled and the code was compiled with the same version of the compiler using the same optimization options (-O2). If you want to repeat the benchmarks, the unmodified Lua sources can be found in this repository in the "unmodified" branch.
+The benchmarks were run on macOS 10.13.3 with a Intel Core i7 CPU running at 2.3 GHz and with 8 GB 1600 MHz DDR3 RAM. For benchmarking Lua API checks were disabled and the code was compiled with the same version of the C compiler using the same options (-O2). If you want to repeat the benchmarks, the unmodified Lua sources can be found in this repository in the "unmodified" branch.
 
 Insert: Starting with an empty table, this does a large number of table/array insertions to sequential indices. The point of this benchmark is to test the efficiency of growing the table/array data structure.
 
@@ -109,10 +106,10 @@ The code for benchmarks can be found in tests/benchmark1.lua.
 # Summary and conclusions
 
 The main contributions of this work are:
-* The addition of a new high performance array subtype for tables, which does not negatively affect the performance of regular tables (within measurement accuracy).
+* The addition of a new high performance array subtype for tables, which does not negatively affect the performance of regular tables (within measurement precision).
 * The arrays don't suffer from the issue with holes (also see Opinions below how the hole issue can be resolved in the future for regular tables).
 * "[...]" syntax for arrays.
-* Arrays have been implemented in a way that is fully backwards compatible, meaning that Lua programs without arrays can run without modification on the modified Lua version with array support.
+* Arrays have been implemented in a way that is fully backwards compatible, meaning that old Lua programs can be run without modification with the patched Lua interpreter.
 
 The work shows that Lua could benefit from an array subtype for tables.
 
