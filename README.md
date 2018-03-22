@@ -115,7 +115,7 @@ The work shows that Lua could benefit from an array subtype for tables.
 
 # Opinions
 
-From a purely theoretical point of view, the inclusion of a new subtype adds some weight to the language, but from a more pragmatic view, the increased performance and fixing the hole issue overweights the theoretical issue. Moving forward, if arrays would be adopted to mainstream Lua, the '#' operator could be deprecated for tables and eventually made an array only feature. Of course, the '#' could still be implemented using a metatable for tables if needed. This would be a final nail in coffin for the hole issue.
+From a purely theoretical point of view, the inclusion of a new subtype adds some weight to the language, but from a more pragmatic view, the increased performance and fixing the hole issue overweights the theoretical issue. Moving forward, if arrays would be adopted to mainstream Lua, the '#' operator could be deprecated for tables and eventually made an array only feature. Of course, the '#' could still be implemented using a metatable for tables if needed. This would be the final nail in coffin for the hole issue.
 
 With the addition of arrays another small wart in the language, the 'n' field of the table returned by table.pack(), could be eliminated by changing table.pack() to return an array. Since the array has a well defined length, the 'n' field would not be required. This would however break backwards compatibility, so this could be an opt-in feature at first.
 
@@ -123,6 +123,6 @@ In addition to the other benefits, in my opinion the inclusion of an array type 
 
 # Implementation details
 
-The implementation adds two new fields to the Table structure: "truearray" and "sizeused". True array is a single boolean that does not increase the memory consumption of Table struct, because of C struct packing and alignment rules. "Sizeused" is used to track the used size of the array as reported by '#', and it adds 4 or 8 bytes (depending whether Lua is compiled as 32 or 64-bit executable) to the size of the struct, but this does not seem to affect the CPU cache hit ratio or slow down the interpreter.
+The implementation adds two new fields to the Table structure: "truearray" and "sizeused". True array is a single boolean that does not increase the memory consumption of Table struct, because of C struct packing and alignment rules. "Sizeused" is used to track the used size of the array as reported by '#', and it adds 4 or 8 bytes (depending whether Lua is compiled as a 32 or 64-bit application) to the size of the struct, but this does not seem to affect the CPU cache hit ratio or slow down the interpreter.
 
-The implementation has been carefully designed to not increase the size of the main VM loop, which could negatively affect performance. Particularly no new opcodes have been added to the VM. Also the increment of "sizeused" when setting array elements is branchless and CPU cache usage has been taken into account.
+The implementation has been carefully designed to not increase the size of the main VM loop, which could negatively affect performance. Particularly no new opcodes have been added to the VM. Incrementing "sizeused" when setting array elements is implemented without branching and CPU cache usage has also been taken into account.
