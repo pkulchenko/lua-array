@@ -734,7 +734,7 @@ static void constructor (LexState *ls, expdesc *t, int array) {
 
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  int pc = luaK_codeABC(fs, array ? OP_NEWARRAY : OP_NEWTABLE, 0, 0, 0);
+  int pc = luaK_codeABC(fs, OP_NEWTABLE, 0, 0, 0);
   struct ConsControl cc;
   cc.na = cc.nh = cc.tostore = 0;
   cc.t = t;
@@ -755,6 +755,15 @@ static void constructor (LexState *ls, expdesc *t, int array) {
   lastlistfield(fs, &cc);
   SETARG_B(fs->f->code[pc], luaO_int2fb(cc.na)); /* set initial array size */
   SETARG_C(fs->f->code[pc], luaO_int2fb(cc.nh));  /* set initial table size */
+  /* encode arrayness by setting C to max value (255) */
+  if(array) {
+    /* make sure C is not already 255 */
+    /* I don't this can happen in practice (max size is luaO_fb2int(255) = 3221225472), but let's be sure... */
+    unsigned int c = GETARG_C(fs->f->code[pc]);
+    if (c == 255)
+      luaX_syntaxerror(fs->ls, "table too large"); 
+    SETARG_C(fs->f->code[pc], 255);
+  }
 }
 
 

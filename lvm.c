@@ -1065,28 +1065,22 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_NEWTABLE) {
-        int b = GETARG_B(i);
+        int b = luaO_fb2int(GETARG_B(i));
         int c = GETARG_C(i);
+        /* decode arrayness */
+        int array = (c == 255);
         Table *t;
         L->top = ci->top;  /* correct top in case of GC */
         t = luaH_new(L);  /* memory allocation */
+        t->truearray = array;
+        t->sizeused = b;
         sethvalue2s(L, ra, t);
-        if (b != 0 || c != 0)
-          luaH_resize(L, t, luaO_fb2int(b), luaO_fb2int(c));  /* idem */
-        checkGC(L, ra + 1);
-        vmbreak;
-      }
-      vmcase(OP_NEWARRAY) {
-        int b = GETARG_B(i);
-        int arraysize = luaO_fb2int(b);
-        Table *t;
-        L->top = ci->top;  /* correct top in case of GC */
-        t = luaH_new(L);  /* memory allocation */
-        t->truearray = 1;
-        sethvalue2s(L, ra, t);
-        if (b != 0)
-          luaH_resizearray(L, t, arraysize);  /* idem */
-        t->sizeused = arraysize;
+        if (b != 0 || c != 0) {
+          if (array)
+            luaH_resizearray(L, t, b);  /* idem */
+          else
+            luaH_resize(L, t, b, luaO_fb2int(c));  /* idem */
+        }
         checkGC(L, ra + 1);
         vmbreak;
       }

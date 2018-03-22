@@ -213,7 +213,6 @@ OP_SETI,/*	A B C	R(A)[B] := RK(C)				*/
 OP_SETFIELD,/*	A B C	R(A)[K(B):string] := RK(C)			*/
 
 OP_NEWTABLE,/*	A B C	R(A) := {} (size = B,C)				*/
-OP_NEWARRAY,/*  A B C R(A) := {} (size = B)       */
 
 OP_SELF,/*	A B C	R(A+1) := R(B); R(A) := R(B)[RK(C):string]	*/
 
