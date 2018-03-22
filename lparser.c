@@ -756,7 +756,7 @@ static void constructor (LexState *ls, expdesc *t, int array) {
   SETARG_B(fs->f->code[pc], luaO_int2fb(cc.na)); /* set initial array size */
   SETARG_C(fs->f->code[pc], luaO_int2fb(cc.nh));  /* set initial table size */
   /* encode arrayness by setting C to max value (255) */
-  if(array) {
+  if (array) {
     /* make sure C is not already 255 */
     /* I don't this can happen in practice (max size is luaO_fb2int(255) = 3221225472), but let's be sure... */
     unsigned int c = GETARG_C(fs->f->code[pc]);

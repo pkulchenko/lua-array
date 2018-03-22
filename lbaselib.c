@@ -252,7 +252,7 @@ static int luaB_ipairs (lua_State *L);
 
 static int luaB_pairs (lua_State *L) {
   luaL_checkany(L, 1);
-  if(lua_isarray(L, 1))
+  if (lua_isarray(L, 1))
     return luaB_ipairs(L);
   if (luaL_getmetafield(L, 1, "__pairs") == LUA_TNIL) {  /* no metamethod? */
     lua_pushcfunction(L, luaB_next);  /* will return generator, */

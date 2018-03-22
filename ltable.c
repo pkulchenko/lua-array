@@ -567,15 +567,15 @@ TValue *luaH_newkey (lua_State *L, Table *t, const TValue *key) {
   else if (t->truearray) {
     /* set new value to true array */
     unsigned int capacity;
-    if(!ttisinteger(key))
+    if (!ttisinteger(key))
       luaG_runerror(L, "invalid array index");
     int idx = ivalue(key);   /* TODO: does not handle numbers larger than fits into a 32-bit signed integer! */
-    if(idx < 1)
+    if (idx < 1)
       luaG_runerror(L, "invalid array index");
     /* enlarge capacity */
-    if(t->sizearray < idx) {
+    if (t->sizearray < idx) {
       capacity = t->sizearray * 2;
-      if(capacity < idx)
+      if (capacity < idx)
         capacity = idx;
       /* printf("enlarge capacity %d -> %d\n", t->capacity, capacity); */
       luaH_resizearray(L, t, capacity);
@@ -780,7 +780,7 @@ static lua_Unsigned hash_search (Table *t, lua_Unsigned j) {
 ** to find a boundary in the hash part.
 */
 lua_Unsigned luaH_getn (Table *t) {
-  if(t->truearray)
+  if (t->truearray)
     return t->sizeused;
   unsigned int j = t->sizearray;
   if (j > 0 && isempty(&t->array[j - 1])) {
