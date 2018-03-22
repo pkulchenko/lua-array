@@ -108,6 +108,7 @@ The code for benchmarks can be found in tests/benchmark1.lua.
 The main contributions of this work are:
 * The addition of a new high performance array subtype for tables, which does not negatively affect the performance of regular tables (within measurement precision).
 * The arrays don't suffer from the issue with holes (also see Opinions below how the hole issue can be resolved in the future for regular tables).
+* Implementation of '#' operator for arrays in constant time (O(1)).
 * "[...]" syntax for arrays.
 * Arrays have been implemented in a way that is fully backwards compatible, meaning that old Lua programs can be run without modification with the patched Lua interpreter.
 
