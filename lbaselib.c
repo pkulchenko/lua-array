@@ -295,7 +295,7 @@ static int ipairsauxarray (lua_State *L) {
   lua_Integer i = luaL_checkinteger(L, 2) + 1;
   lua_pushinteger(L, i);
   lua_geti(L, 1, i);
-  return (lua_objlen(L, 1) == i-1) ? 1 : 2;
+  return (lua_rawlen(L, 1) == i-1) ? 1 : 2;
 }
 
 

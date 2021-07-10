@@ -59,7 +59,7 @@ void luaA_free (lua_State *L, Array *a) {
 }
 
 
-const TValue *luaA_getint (Array *a, lua_Integer key) {
+const TValue *luaA_getint (lua_State *L, Array *a, lua_Integer key) {
   /* (1 <= key && key <= t->sizearray) */
   if (l_castS2U(key) - 1u < a->sizearray)
     return &a->array[key - 1];
@@ -68,7 +68,7 @@ const TValue *luaA_getint (Array *a, lua_Integer key) {
 }
 
 const TValue *luaA_get (lua_State *L, Array *a, const TValue *key) {
-  if (ttypetag(key) == LUA_TNUMINT) {
+  if (ttypetag(key) == LUA_VNUMINT) {
     lua_Integer ikey = ivalue(key);
     if (l_castS2U(ikey) - 1u < a->sizearray)
       return &a->array[ikey - 1];
@@ -95,7 +95,7 @@ void luaA_setint (lua_State *L, Array *a, lua_Integer key, TValue *value) {
 }
 
 void luaA_set (lua_State *L, Array *a, const TValue* key, TValue *value) {
-  if (ttypetag(key) == LUA_TNUMINT) {
+  if (ttypetag(key) == LUA_VNUMINT) {
     lua_Integer ikey = ivalue(key);
     luaA_setint(L, a, ikey, value);
   } else {

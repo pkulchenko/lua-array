@@ -1266,7 +1266,7 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         TValue *rb = vRB(i);
         int c = GETARG_C(i);
         if(ttisarray(rb)) {
-          setobj2s(L, ra, luaA_getint(avalue(rb), c));
+          setobj2s(L, ra, luaA_getint(L, avalue(rb), c));
         }
         else if (luaV_fastgeti(L, rb, c, slot)) {
           setobj2s(L, ra, slot);
@@ -1321,8 +1321,8 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         const TValue *slot;
         int c = GETARG_B(i);
         TValue *rc = RKC(i);
-        if(ttisarray(vra)) {
-          luaA_setint(L, avalue(vra), c, rc);
+        if(ttisarray(s2v(ra))) {
+          luaA_setint(L, avalue(s2v(ra)), c, rc);
         }
         else if (luaV_fastgeti(L, s2v(ra), c, slot)) {
           luaV_finishfastset(L, s2v(ra), slot, rc);
@@ -1347,10 +1347,10 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         vmbreak;
       }
       vmcase(OP_NEWTABLE) {
-        int b = luaO_fb2int(GETARG_B(i));  /* log2(hash size) + 1 */
+        int b = GETARG_B(i);  /* log2(hash size) + 1 */
         int c = GETARG_C(i);  /* array size */
         /* decode arrayness */
-        int array = (c == 255);
+        int array = (b == 255);
         Table *t;
         if (b > 0)
           b = 1 << (b - 1);  /* size is 2^(b - 1) */
@@ -1361,13 +1361,13 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         L->top = ra + 1;  /* correct top in case of emergency GC */
         t = luaH_new(L);  /* memory allocation */
         t->truearray = array;
-        t->sizeused = b;
+        t->sizeused = c;
         sethvalue2s(L, ra, t);
         if (b != 0 || c != 0) {
           if (array)
-            luaH_resizearray(L, t, b);  /* idem */
+            luaH_resizearray(L, t, c);  /* idem */
           else
-            luaH_resize(L, t, luaO_fb2int(c), b);  /* idem */
+            luaH_resize(L, t, c, b);  /* idem */
         }
         checkGC(L, ra + 1);
         vmbreak;
