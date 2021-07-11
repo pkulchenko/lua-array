@@ -39,9 +39,9 @@ end
 -- test array extend
 do
 	local a = [1, 2, 3]
-	a[5] = 5
-	assert(a[5] == 5)
-	assert(#a == 5)
+	a[7] = 5
+	assert(#a == 7)
+	assert(a[7] == 5)
 end
 
 -- test array extend 2

@@ -703,7 +703,7 @@ void luaV_objlen (lua_State *L, StkId ra, const TValue *rb) {
     }
     case LUA_TARRAY: {
       Array *a = avalue(rb);
-      setivalue(s2v(ra), a->sizearray);
+      setivalue(s2v(ra), a->alimit);
       return;
     }
     case LUA_VSHRSTR: {
@@ -1364,10 +1364,11 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
         t->sizeused = c;
         sethvalue2s(L, ra, t);
         if (b != 0 || c != 0) {
-          if (array)
+          if (array) {
             luaH_resizearray(L, t, c);  /* idem */
-          else
+          } else {
             luaH_resize(L, t, c, b);  /* idem */
+          }
         }
         checkGC(L, ra + 1);
         vmbreak;
@@ -1825,8 +1826,9 @@ void luaV_execute (lua_State *L, CallInfo *ci) {
           last += GETARG_Ax(*pc) * (MAXARG_C + 1);
           pc++;
         }
-        if (last > luaH_realasize(h))  /* needs more space? */
+        if (last > luaH_realasize(h)) { /* needs more space? */
           luaH_resizearray(L, h, last);  /* preallocate it at once */
+        }
         for (; n > 0; n--) {
           TValue *val = s2v(ra + n);
           setobj2t(L, &h->array[last - 1], val);

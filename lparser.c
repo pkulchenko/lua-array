@@ -942,14 +942,14 @@ static void constructor (LexState *ls, expdesc *t, int array) {
   check_match(ls, array ? ']' : '}', array ? '[' : '{', line);
   lastlistfield(fs, &cc);
   luaK_settablesize(fs, pc, t->u.info, cc.na, cc.nh);
-  /* encode arrayness by setting C to max value (255) */
+  /* encode arrayness by setting B to max value (255) */
   if (array) {
-    /* make sure C is not already 255 */
+    /* make sure B is not already 255 */
     /* I don't this can happen in practice (max size is luaO_fb2int(255) = 3221225472), but let's be sure... */
-    unsigned int c = GETARG_C(fs->f->code[pc]);
-    if (c == 255)
+    unsigned int b = GETARG_B(fs->f->code[pc]);
+    if (b == 255)
       luaX_syntaxerror(fs->ls, "table too large"); 
-    SETARG_C(fs->f->code[pc], 255);
+    SETARG_B(fs->f->code[pc], 255);
   }
 }
 

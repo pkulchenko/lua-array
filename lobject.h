@@ -727,7 +727,6 @@ typedef struct Table {
   lu_byte lsizenode;  /* log2 of size of 'node' array */
   unsigned int alimit;  /* "limit" of 'array' array */
   lu_byte truearray; /* 1 if the table is a true array (no hash part) */
-  unsigned int sizearray;  /* size of 'array' array */
   unsigned int sizeused; /* size reported by objlen for true arrays (unused for regular tables) */
   TValue *array;  /* array part */
   Node *node;
@@ -817,7 +816,7 @@ LUAI_FUNC void luaO_chunkid (char *out, const char *source, size_t srclen);
 
 typedef struct Array {
   CommonHeader;
-  unsigned int sizearray;  /* size of 'array' array */
+  unsigned int alimit;  /* size of 'array' array */
   TValue *array;  /* array part */
   GCObject *gclist;
 } Array;

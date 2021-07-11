@@ -766,8 +766,9 @@ LUA_API void lua_createtable (lua_State *L, int narray, int nrec) {
   t = luaH_new(L);
   sethvalue2s(L, L->top, t);
   api_incr_top(L);
-  if (narray > 0 || nrec > 0)
+  if (narray > 0 || nrec > 0) {
     luaH_resize(L, t, narray, nrec);
+  }
   luaC_checkGC(L);
   lua_unlock(L);
 }
@@ -789,14 +790,15 @@ LUA_API void lua_createarray (lua_State *L, int narray) {
 LUA_API void lua_resize (lua_State *L, int idx, int size) {
   TValue *o;
   Table *t;
-  unsigned int i;
+  unsigned int i, oldsize;
   lua_lock(L);
   o = index2value(L, idx);
   api_check(L, ttistable(o), "table expected");
   t = hvalue(o);
-  unsigned int oldsize = t->sizeused;
-  if(size > t->sizearray)
+  oldsize = t->sizeused;
+  if (size > luaH_realasize(t)) {
     luaH_resizearray(L, t, size);
+  }
   lua_unlock(L);
   /* set removed elements to nil when shrinking array size */
   for(i = size + 1; i <= oldsize; i++) {

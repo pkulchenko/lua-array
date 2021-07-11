@@ -559,7 +559,6 @@ void luaH_resize (lua_State *L, Table *t, unsigned int newasize,
     exchangehashpart(t, &newt);  /* and hash (in case of errors) */
   }
   /* allocate new array */
-  /* printf("realloc array %d -> %d\n", oldasize, newasize); */
   newarray = luaM_reallocvector(L, t->array, oldasize, newasize, TValue);
   if (l_unlikely(newarray == NULL && newasize > 0)) {  /* allocation failed? */
     freehash(L, &newt);  /* release new hash part */
@@ -621,7 +620,6 @@ Table *luaH_new (lua_State *L) {
   t->truearray = 0;
   t->array = NULL;
   t->alimit = 0;
-  t->sizearray = 0;
   t->sizeused = 0;
   setnodevector(L, t, 0);
   return t;
@@ -663,22 +661,23 @@ void luaH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
   else if (t->truearray) {
     /* set new value to true array */
     unsigned int capacity;
+    int asize = luaH_realasize(t);
     if (!ttisinteger(key))
       luaG_runerror(L, "invalid array index");
     int idx = ivalue(key);   /* TODO: does not handle numbers larger than fits into a 32-bit signed integer! */
     if (idx < 1)
       luaG_runerror(L, "invalid array index");
     /* enlarge capacity */
-    if (t->sizearray < idx) {
-      capacity = t->sizearray * 2;
+    if (asize < idx) {
+      capacity = asize * 2;
       if (capacity < idx)
         capacity = idx;
-      /* printf("enlarge capacity %d -> %d\n", t->capacity, capacity); */
       luaH_resizearray(L, t, capacity);
     }
     t->sizeused = idx;
     luaC_barrierback(L, obj2gco(t), key);
-    return &t->array[idx - 1];
+    setobj2t(L, cast(TValue *, t->array + idx - 1), value);
+    return;
   } else if (ttisfloat(key)) {
     lua_Number f = fltvalue(key);
     lua_Integer k;
@@ -933,9 +932,9 @@ static unsigned int binsearch (const TValue *array, unsigned int i,
 ** therefore cannot be used as a new limit.)
 */
 lua_Unsigned luaH_getn (Table *t) {
+  unsigned int limit = t->alimit;
   if (t->truearray)
     return t->sizeused;
-  unsigned int limit = t->alimit;
   if (limit > 0 && isempty(&t->array[limit - 1])) {  /* (1)? */
     /* there must be a boundary before 'limit' */
     if (limit >= 2 && !isempty(&t->array[limit - 2])) {
