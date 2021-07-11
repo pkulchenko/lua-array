@@ -258,7 +258,7 @@ LUA_API int (lua_rawgetp) (lua_State *L, int idx, const void *p);
 
 LUA_API void  (lua_createtable) (lua_State *L, int narr, int nrec);
 LUA_API void  (lua_createarray) (lua_State *L, int narr);
-LUA_API void  (lua_resize) (lua_State *L, int idx, int size);
+LUA_API void  (lua_resize) (lua_State *L, int idx, unsigned int size);
 LUA_API void *(lua_newuserdatauv) (lua_State *L, size_t sz, int nuvalue);
 LUA_API int   (lua_getmetatable) (lua_State *L, int objindex);
 LUA_API int  (lua_getiuservalue) (lua_State *L, int idx, int n);

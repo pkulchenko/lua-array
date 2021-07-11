@@ -787,7 +787,7 @@ LUA_API void lua_createarray (lua_State *L, int narray) {
 }
 
 
-LUA_API void lua_resize (lua_State *L, int idx, int size) {
+LUA_API void lua_resize (lua_State *L, int idx, unsigned int size) {
   TValue *o;
   Table *t;
   unsigned int i, oldsize;

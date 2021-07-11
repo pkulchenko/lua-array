@@ -660,12 +660,10 @@ void luaH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
     luaG_runerror(L, "table index is nil");
   else if (t->truearray) {
     /* set new value to true array */
-    unsigned int capacity;
+    int capacity;
     int asize = luaH_realasize(t);
-    if (!ttisinteger(key))
-      luaG_runerror(L, "invalid array index");
     int idx = ivalue(key);   /* TODO: does not handle numbers larger than fits into a 32-bit signed integer! */
-    if (idx < 1)
+    if (!ttisinteger(key) || idx < 1)
       luaG_runerror(L, "invalid array index");
     /* enlarge capacity */
     if (asize < idx) {
