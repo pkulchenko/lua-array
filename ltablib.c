@@ -101,7 +101,6 @@ static int tremove (lua_State *L) {
   }
   lua_pushnil(L);
   lua_seti(L, 1, pos);  /* remove entry t[pos] */
-  lua_resize(L, 1, size-1); /* shrink the table/array */
   return 1;
 }
 
