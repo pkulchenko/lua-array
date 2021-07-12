@@ -667,12 +667,12 @@ void luaH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
       luaG_runerror(L, "invalid array index");
     /* enlarge capacity */
     if (asize < idx) {
-      capacity = asize * 2;
+      capacity = asize + (asize >> 1);
       if (capacity < idx)
         capacity = idx;
       luaH_resizearray(L, t, capacity);
     }
-    t->sizeused = idx;
+    t->sizeused = idx; // since this is guaranteed to be a new key, it exceeds t->sizeused
     luaC_barrierback(L, obj2gco(t), key);
     setobj2t(L, cast(TValue *, t->array + idx - 1), value);
     return;
